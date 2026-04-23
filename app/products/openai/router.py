@@ -140,20 +140,13 @@ _HEARTBEAT_INTERVAL_S = 30
 async def _sse_with_heartbeat(
     stream: AsyncIterable[str], interval: int = _HEARTBEAT_INTERVAL_S
 ) -> AsyncGenerator[str, None]:
-    """Keep SSE connections alive through reverse proxies / CDNs.
-
-    - Initial 2KB padding forces intermediate buffers (nginx, Cloudflare) to flush.
-    - `: ping` comments sent every `interval` seconds of silence.
-    """
-    yield ": heartbeat stream connected\n" + " " * 2048 + "\n\n"
-
     aiter = stream.__aiter__()
     while True:
         try:
             chunk = await asyncio.wait_for(aiter.__anext__(), timeout=interval)
             yield chunk
         except asyncio.TimeoutError:
-            yield ": ping\n\n"
+            continue
         except StopAsyncIteration:
             break
         except asyncio.CancelledError:
