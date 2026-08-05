@@ -1,5 +1,7 @@
 # 出口质量守护程序
 
+守护程序现在是单个顺序执行的静态链接 Go 二进制，不需要第三方运行时依赖。镜像只保留二进制、可选轮换 Webhook 所需的 CA 证书包以及共享状态卷。
+
 出口质量守护程序同时支持“真实请求审计被动检测”和“固定 Prompt 主动探测”。被动检测命中
 硬阈值会立即隔离节点；软阈值仍需固定 Prompt 主动复测确认。
 
@@ -124,7 +126,7 @@ qualityGuard:
 
 ```sh
 docker compose --profile quality-guard config --quiet
-docker compose --profile quality-guard up -d --build
+docker compose --profile quality-guard up -d
 ```
 
 以后修改 `config.yaml` 中的 `qualityGuard` 基础配置时，执行
@@ -147,5 +149,8 @@ docker compose --profile quality-guard up -d --build
 运行测试：
 
 ```sh
-python3 -m unittest -v tools/egress-quality-guard/quality_guard_test.py tools/egress-quality-guard/session_rotator_test.py
+cd tools/egress-quality-guard && go test ./...
+python3 -m unittest -v session_rotator_test.py
 ```
+
+Go 测试覆盖主动和被动阈值分类、完整节点分页、审计基线、隔离与恢复、最少健康节点保护、运行时配置热加载校验以及私有原子状态写入。会话轮换器仍保留独立的 Python 标准库测试套件。

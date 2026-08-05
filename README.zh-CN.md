@@ -295,7 +295,7 @@ qualityGuard:
 ```
 
 ```bash
-docker compose --profile quality-guard up -d --build
+docker compose --profile quality-guard up -d
 ```
 
 曾使用预览版 `clientKeyID` 配置的现有部署可以直接升级：该字段会被兼容读取但不再使用，可安全删除；原来手工创建的探测 Key 不会被程序擅自删除。

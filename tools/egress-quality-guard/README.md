@@ -1,5 +1,9 @@
 # Egress Quality Guard
 
+The guard runs as a single sequential, statically linked Go binary with no
+third-party runtime dependencies. The image retains only the binary, the CA
+bundle needed by optional rotation webhooks, and the shared state volume.
+
 Egress Quality Guard combines passive production-audit monitoring with active
 Grok Build probes through each fixed egress node. A passive hard-threshold
 anomaly quarantines the node immediately; a soft anomaly is confirmed by a
@@ -175,7 +179,7 @@ Run from the repository root:
 
 ```sh
 docker compose --profile quality-guard config --quiet
-docker compose --profile quality-guard up -d --build
+docker compose --profile quality-guard up -d
 ```
 
 After changing the base `qualityGuard` settings in `config.yaml`, run
@@ -204,10 +208,11 @@ See [`SECURITY.md`](./SECURITY.md) before deploying the guard outside a developm
 ## Tests
 
 ```sh
-python3 -m unittest -v tools/egress-quality-guard/quality_guard_test.py tools/egress-quality-guard/session_rotator_test.py
+cd tools/egress-quality-guard && go test ./...
+python3 -m unittest -v session_rotator_test.py
 ```
 
-The tests cover active and passive threshold classification, complete node
-pagination, audit baselining and self-exclusion, fixed-fallback protection,
-crash-safe quarantine ownership, quarantine and recovery, live exit-IP rotation
-verification, configuration validation, and private atomic state.
+The Go tests cover active and passive threshold classification, complete node
+pagination, audit baselining, quarantine and recovery, minimum healthy-node
+protection, runtime reload validation, and private atomic state. The session
+rotator retains its separate Python standard-library test suite.

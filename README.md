@@ -296,7 +296,7 @@ qualityGuard:
 ```
 
 ```bash
-docker compose --profile quality-guard up -d --build
+docker compose --profile quality-guard up -d
 ```
 
 Existing preview deployments that still contain `clientKeyID` can upgrade
